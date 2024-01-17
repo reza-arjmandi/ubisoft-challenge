@@ -1,0 +1,46 @@
+#pragma once
+
+#include <cstdlib>
+#include <iostream>
+#include <memory>
+#include <utility>
+#include <boost/asio/ts/buffer.hpp>
+#include <boost/asio/ts/internet.hpp>
+#include "Database.h"
+#include "Session.h"
+
+using boost::asio::ip::tcp;
+
+class Server
+{
+public:
+  Server(boost::asio::io_context& io_context, short port)
+    : acceptor(io_context, tcp::endpoint(tcp::v4(), port)),
+      socket(io_context)
+  {
+    doAccept();
+  }
+
+private:
+  void doAccept()
+  {
+    acceptor.async_accept(socket,
+        [this](boost::system::error_code ec)
+        {
+          if (!ec)
+          {
+            std::shared_ptr<Context> context = std::make_shared<Context>();
+            context->db = db;
+            context->ui = std::make_shared<UserInterface>(std::move(socket));
+            std::make_shared<Session>(context)->start();
+          }
+
+          doAccept();
+        });
+  }
+
+  tcp::acceptor acceptor;
+  tcp::socket socket;
+  std::shared_ptr<Database> db = std::make_shared<Database>();
+
+};

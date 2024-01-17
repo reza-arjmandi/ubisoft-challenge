@@ -22,7 +22,7 @@ public:
   {
     manager = mgr;
     context = ctx;
-    context->endUser->doWrite("Login with user: ",
+    context->ui->doWrite("Login with user: ",
         [this](boost::system::error_code ec, std::size_t length)
         {
           if (!ec) onWrite();
@@ -37,7 +37,7 @@ public:
 
   void onWrite()
   {
-    context->endUser->doRead(user, maxUserLength, 
+    context->ui->doRead(username, maxUsernameLength, 
         [this](boost::system::error_code ec, std::size_t length)
         {
           if (!ec) onRead();
@@ -47,15 +47,16 @@ public:
 
   void onRead()
   {
-    context->userName = std::string(user);
+    context->user = context->db->findOrCreate(username);
     auto dashboard = std::make_shared<DashboardState>();
     manager->SetState(dashboard, context);
   }
 
 
 private:
+
   std::shared_ptr<StateManager> manager;
   std::shared_ptr<Context> context;
-  enum { maxUserLength = 1024 };
-  char user[maxUserLength];
+  enum { maxUsernameLength = 1024 };
+  char username[maxUsernameLength];
 };

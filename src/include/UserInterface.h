@@ -5,11 +5,11 @@
 
 using boost::asio::ip::tcp;
 
-class EndUser: public std::enable_shared_from_this<EndUser> {
+class UserInterface: public std::enable_shared_from_this<UserInterface> {
 
 public:
   
-  EndUser(tcp::socket socket)
+  UserInterface(tcp::socket socket)
     : socket(std::move(socket))
   {
   }

@@ -5,7 +5,7 @@
 #include "StateManager.h"
 #include "AuthState.h"
 #include "Context.h"
-#include "EndUser.h"
+#include "UserInterface.h"
 
 using boost::asio::ip::tcp;
 
@@ -13,9 +13,9 @@ class Session
   : public std::enable_shared_from_this<Session>, public StateManager
 {
 public:
-  Session(tcp::socket socket)
+  Session(std::shared_ptr<Context> ctx)
+  : context(ctx)
   {
-    context->endUser = std::make_shared<EndUser>(std::move(socket));
   }
   
   void SetState(std::shared_ptr<State> newState, std::shared_ptr<Context> ctx) override
@@ -36,5 +36,5 @@ public:
 private:
 
   std::shared_ptr<State> currentState = std::make_shared<AuthState>();
-  std::shared_ptr<Context> context = std::make_shared<Context>();
+  std::shared_ptr<Context> context;
 };
