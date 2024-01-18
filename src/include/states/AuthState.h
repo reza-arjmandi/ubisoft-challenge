@@ -6,7 +6,7 @@
 #include <boost/asio/ts/buffer.hpp>
 #include <boost/asio/ts/internet.hpp>
 #include "State.h"
-#include "User.h"
+#include "Models.h"
 #include "DashboardState.h"
 
 using boost::asio::ip::tcp;

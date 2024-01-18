@@ -15,6 +15,7 @@ enum class StateNames {
   WithdrawState,
   WithdrawFundState,
   WithdrawItemState,
+  SellState,
 };
 
 class State {

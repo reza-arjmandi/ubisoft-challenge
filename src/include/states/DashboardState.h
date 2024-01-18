@@ -83,8 +83,11 @@ public:
       case 1:
         nextState = context->states[StateNames::DepositState];
         break;
-    case 2:
+      case 2:
         nextState = context->states[StateNames::WithdrawState];
+        break;
+      case 3:
+        nextState = context->states[StateNames::SellState];
         break;
       default:
         return;

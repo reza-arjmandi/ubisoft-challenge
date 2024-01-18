@@ -7,7 +7,6 @@
 #include <utility>
 #include <boost/asio/ts/buffer.hpp>
 #include <boost/asio/ts/internet.hpp>
-#include "DBCollection.h"
 #include "Session.h"
 #include "State.h"
 #include "states/DashboardState.h"
@@ -18,6 +17,7 @@
 #include "states/WithdrawItemState.h"
 #include "states/DepositFundState.h"
 #include "states/DepositItemState.h"
+#include "states/SellState.h"
 
 using boost::asio::ip::tcp;
 
@@ -25,7 +25,8 @@ class Server
 {
 public:
   Server(boost::asio::io_context& io_context, short port)
-    : acceptor(io_context, tcp::endpoint(tcp::v4(), port)),
+    : ioContext(io_context),
+      acceptor(io_context, tcp::endpoint(tcp::v4(), port)),
       socket(io_context)
   {
     doAccept();
@@ -39,7 +40,7 @@ private:
         {
           if (!ec)
           {
-            std::shared_ptr<Context> context = std::make_shared<Context>();
+            std::shared_ptr<Context> context = std::make_shared<Context>(ioContext);
             context->ui = std::make_shared<UserInterface>(std::move(socket));
             context->states = createStates();
             std::make_shared<Session>(context)->start();
@@ -59,9 +60,11 @@ private:
     states[StateNames::WithdrawState] = std::make_shared<WithdrawState>();
     states[StateNames::WithdrawFundState] = std::make_shared<WithdrawFundState>();
     states[StateNames::WithdrawItemState] = std::make_shared<WithdrawItemState>();
+    states[StateNames::SellState] = std::make_shared<SellState>();
     return states;
   }
   
+  boost::asio::io_context& ioContext;
   tcp::acceptor acceptor;
   tcp::socket socket;
 
