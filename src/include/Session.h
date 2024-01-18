@@ -3,7 +3,6 @@
 #include <memory>
 #include "State.h"
 #include "StateManager.h"
-#include "AuthState.h"
 #include "Context.h"
 #include "UserInterface.h"
 
@@ -29,12 +28,13 @@ public:
 
   void start()
   {
+    currentState = context->states[StateNames::AuthState];
     auto self(shared_from_this());
     currentState->Process(self, context);
   }
 
 private:
 
-  std::shared_ptr<State> currentState = std::make_shared<AuthState>();
+  std::shared_ptr<State> currentState;
   std::shared_ptr<Context> context;
 };

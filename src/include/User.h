@@ -2,14 +2,13 @@
 
 #include <string>
 #include <vector>
-
-struct Item {
-  std::string name;
-  std::string price;
-};
+#include "DBCollection.h"
 
 struct User {
   std::string name = "";
   int balance = 0;
-  std::vector<Item> items;
+  std::vector<std::string> items;
+  static DBCollection<User> Collection;
 };
+
+DBCollection<User> User::Collection{};

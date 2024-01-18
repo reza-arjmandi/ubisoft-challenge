@@ -3,9 +3,19 @@
 #include <string>
 #include <memory>
 
-#include "Context.h"
-
 class StateManager;
+struct Context;
+
+enum class StateNames {
+  AuthState,
+  DashboardState,
+  DepositState,
+  DepositFundState,
+  DepositItemState,
+  WithdrawState,
+  WithdrawFundState,
+  WithdrawItemState,
+};
 
 class State {
 public:

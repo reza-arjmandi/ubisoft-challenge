@@ -9,7 +9,7 @@
 
 using boost::asio::ip::tcp;
 
-class DepositState: public State {
+class DashboardState: public State {
 
 public:
 
@@ -21,7 +21,7 @@ public:
   {
     manager = mgr;
     context = ctx;
-    context->ui->doWrite(GetDepositStateContent(context->user->name),
+    context->ui->doWrite(GetDashboardContent(context->user->name),
         [this](boost::system::error_code ec, std::size_t length)
         {
           if (!ec) onWrite();
@@ -34,11 +34,18 @@ public:
 
   }
 
-  std::string GetDepositStateContent(const std::string& username) {
-    std::string content = "1- Deposit funds\r\n";
-    content += "2- Deposit items\r\n";
-    content += "3- Back\r\n";
-    content += "Plaese enter one of the above number: ";
+  std::string GetDashboardContent(const std::string& username) {
+    std::string content = "=======================================================\r\n";
+    content += "URI: /app/dashboard\r\n";
+    content += "-------------------------------------------------------\r\n";
+    content += "Welcome *** " + username + " ***\r\n";
+    content += "1. Deposit\r\n";
+    content += "2. Withdraw\r\n";
+    content += "3. Sell\r\n";
+    content += "4. Buy\r\n";
+    content += "5. Display\r\n";
+    content += "6. Log out\r\n";
+    content += "Choose a menu item by typing its number: ";
     return content;
   }
 
@@ -58,7 +65,7 @@ public:
     try {
       auto num = std::stoi(selected);
       if(num > 0 && num < 7) {
-        std::cout << num << std::endl;
+        navigateTo(num);
         return;
       }
       onWrite();
@@ -66,6 +73,23 @@ public:
     } catch(...) {
         onWrite();
     }
+  }
+
+  void navigateTo(int menuIndex)
+  {
+    std::shared_ptr<State> nextState = nullptr;
+    switch(menuIndex)
+    {
+      case 1:
+        nextState = context->states[StateNames::DepositState];
+        break;
+    case 2:
+        nextState = context->states[StateNames::WithdrawState];
+        break;
+      default:
+        return;
+    }
+    manager->SetState(nextState, context);
   }
 
 
