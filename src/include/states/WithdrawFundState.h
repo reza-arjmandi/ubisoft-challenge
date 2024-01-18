@@ -44,6 +44,7 @@ public:
 
   void onWrite()
   {
+    std::memset(withdrawStr, '\0', withdrawStrLength);
     context->ui->doRead(withdrawStr, withdrawStrLength, 
         [this](boost::system::error_code ec, std::size_t length)
         {
@@ -59,6 +60,7 @@ public:
       if(withdrawAmount > 0) {
         auto balance = context->user->balance;
         balance -= withdrawAmount;
+        User::Collection.save();
         bool done = false;
         if (balance >= 0 ) {
           context->user->balance = balance;

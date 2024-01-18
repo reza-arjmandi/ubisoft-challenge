@@ -44,6 +44,7 @@ public:
 
   void onWrite()
   {
+    std::memset(fundStr, '\0', fundStrLength);
     context->ui->doRead(fundStr, fundStrLength, 
         [this](boost::system::error_code ec, std::size_t length)
         {
@@ -58,6 +59,7 @@ public:
       auto depositAmount = std::stoi(std::string(fundStr));
       if(depositAmount > 0) {
         context->user->balance += depositAmount;
+        User::Collection.save();
         std::string message = "Deposit was successful.\r\n";
         context->ui->doWrite(message,
         [this](boost::system::error_code ec, std::size_t length)

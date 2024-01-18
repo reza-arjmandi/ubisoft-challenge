@@ -47,6 +47,7 @@ public:
 
   void onWrite()
   {
+    std::memset(menuItem, '\0', maxMenuItemLength);
     context->ui->doRead(menuItem, maxMenuItemLength, 
         [this](boost::system::error_code ec, std::size_t length)
         {

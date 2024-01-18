@@ -64,6 +64,7 @@ public:
 
   void onContentWrite()
   {
+    std::memset(buffItem, '\0', buffLength);
     context->ui->doRead(buffItem, buffLength, 
         [this](boost::system::error_code ec, std::size_t length)
         {
@@ -93,6 +94,7 @@ public:
   }
 
   void onWritePrice() {
+    std::memset(buffPrice, '\0', buffLength);
     context->ui->doRead(buffPrice, buffLength, 
         [this](boost::system::error_code ec, std::size_t length)
         {

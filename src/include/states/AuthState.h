@@ -47,6 +47,7 @@ public:
 
   void onWrite()
   {
+    std::memset(username, '\0', maxUsernameLength);
     context->ui->doRead(username, maxUsernameLength, 
         [this](boost::system::error_code ec, std::size_t length)
         {

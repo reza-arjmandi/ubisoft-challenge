@@ -3,55 +3,32 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <fstream>
+#include <iostream>
+#include <boost/json.hpp>
+#include "ModelBase.h"
 
-template<typename T>
-class Model {
-
-public:
-
-  class DBCollection {
-
-  public:
-    std::shared_ptr<T> findOrCreate(std::function<bool(const std::shared_ptr<T>&)> matcher, std::function<std::shared_ptr<T>()> factory) 
-    {
-      auto found = std::find_if(buffer.cbegin(), buffer.cend(), matcher);
-      if (found != std::cend(buffer)) {
-        return *found;
-      }
-
-      return create(factory);
-    }
-
-    std::shared_ptr<T> create(std::function<std::shared_ptr<T>()> factory) 
-    {
-      auto newElem = factory();
-      buffer.push_back(newElem);
-      save();
-      return newElem;
-    }
-
-    void save() {
-
-    }
-
-  private:
-    std::vector<std::shared_ptr<T>> buffer;
-
-  };
-
-  static DBCollection Collection;
-
-private:
-
-};
-
-struct User: public Model<User> {
+struct User: public ModelBase<User> {
   std::string name = "";
   int balance = 0;
   std::vector<std::string> items;
+
+  std::string serialize(boost::json::value& jv) override {
+    boost::json::array itemsArray;
+    for (const auto& item : items) {
+      itemsArray.emplace_back(item);
+    }
+    jv = {
+        {"name", name},
+        {"balance", balance},
+        {"items", itemsArray}
+    };
+    return "users";
+  }
+
 };
 
-Model<User>::DBCollection Model<User>::Collection{};
+ModelBase<User>::DBCollection ModelBase<User>::Collection{};
 
 enum class SaleState {
   avaiableForSale,
@@ -59,13 +36,25 @@ enum class SaleState {
   expired,
 };
 
-struct SaleItem: public Model<SaleItem> {
+struct SaleItem: public ModelBase<SaleItem> {
   std::time_t createdAt = 0;
   std::string seller = "";
   std::string buyer = "";
   std::string item = "";
   int price = 0;
   SaleState state = SaleState::avaiableForSale;
+
+  std::string serialize(boost::json::value& jv) override {
+    jv = {
+        {"createdAt", (int)createdAt},
+        {"seller", seller},
+        {"buyer", buyer},
+        {"item", item},
+        {"price", price},
+        {"state", (int)state}
+    };
+    return "saleItems";
+  }
 };
 
-Model<SaleItem>::DBCollection Model<SaleItem>::Collection{};
+ModelBase<SaleItem>::DBCollection ModelBase<SaleItem>::Collection{};

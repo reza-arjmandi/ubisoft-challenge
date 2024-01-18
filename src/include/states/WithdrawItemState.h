@@ -46,6 +46,7 @@ public:
 
   void onWrite()
   {
+    std::memset(itemName, '\0', itemNameLength);
     context->ui->doRead(itemName, itemNameLength, 
         [this](boost::system::error_code ec, std::size_t length)
         {
@@ -66,19 +67,20 @@ public:
             context->user->items.erase(found);
             removed = true ;
         }
+        User::Collection.save();
         std::string message = removed ? "Removing item was successful.\r\n" : "The item not found.\r\n";
         context->ui->doWrite(message,
-        [this](boost::system::error_code ec, std::size_t length)
-        {
-          if (!ec) manager->SetState(context->states[StateNames::WithdrawState], context);
-        }
-    );
+            [this](boost::system::error_code ec, std::size_t length)
+            {
+            if (!ec) manager->SetState(context->states[StateNames::WithdrawState], context);
+            }
+        );
         return;
       }
       onWrite();
 
     } catch(...) {
-        onWrite();
+      onWrite();
     }
   }
 

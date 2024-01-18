@@ -45,6 +45,7 @@ public:
 
   void onWrite()
   {
+    std::memset(itemName, '\0', itemNameLength);
     context->ui->doRead(itemName, itemNameLength, 
         [this](boost::system::error_code ec, std::size_t length)
         {
@@ -60,6 +61,7 @@ public:
       trim(itemStr);
       if(!itemStr.empty()) {
         context->user->items.push_back(itemStr);
+        User::Collection.save();
         std::string message = "Adding item was successful.\r\n";
         context->ui->doWrite(message,
         [this](boost::system::error_code ec, std::size_t length)
