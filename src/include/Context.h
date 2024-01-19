@@ -6,7 +6,6 @@
 #include <boost/asio/ts/internet.hpp>
 #include "UserInterface.h"
 #include "Models.h"
-#include "State.h"
 
 struct Context {
   Context(boost::asio::io_context& ctx)
@@ -14,6 +13,5 @@ struct Context {
 
   std::shared_ptr<UserInterface> ui;
   std::shared_ptr<User> user;
-  std::map<StateNames, std::shared_ptr<State>> states;
   boost::asio::io_context& ioContext;
 };

@@ -3,23 +3,29 @@
 #include <algorithm> 
 #include <cctype>
 #include <locale>
+#include <string>
 
-// trim from start (in place)
 inline void ltrim(std::string &s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
         return !std::isspace(ch);
     }));
 }
 
-// trim from end (in place)
 inline void rtrim(std::string &s) {
     s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
         return !std::isspace(ch);
     }).base(), s.end());
 }
 
-// trim from both ends
 inline void trim(std::string &s) {
     rtrim(s);
     ltrim(s);
+}
+
+inline std::string createUiContent(std::string uri, std::string message) {
+    std::string content  = "=======================================================\r\n";
+    content += "URI: " + uri + "\r\n";
+    content += "-------------------------------------------------------\r\n";
+    content += message;
+    return content;
 }

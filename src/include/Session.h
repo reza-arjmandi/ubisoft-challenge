@@ -1,40 +1,61 @@
 #pragma once
 
 #include <memory>
-#include "State.h"
-#include "StateManager.h"
+#include "Page.h"
+#include "pages/Dashboard.h"
+#include "pages/Auth.h"
+#include "pages/Deposit.h"
+#include "pages/Withdraw.h"
+#include "pages/WithdrawFund.h"
+#include "pages/WithdrawItem.h"
+#include "pages/DepositFund.h"
+#include "pages/DepositItem.h"
+#include "pages/Sell.h"
+#include "PageManager.h"
 #include "Context.h"
 #include "UserInterface.h"
 
 using boost::asio::ip::tcp;
 
 class Session
-  : public std::enable_shared_from_this<Session>, public StateManager
+  : public std::enable_shared_from_this<Session>, public PageManager
 {
 public:
   Session(std::shared_ptr<Context> ctx)
   : context(ctx)
   {
+    initPages();
   }
   
-  void SetState(std::shared_ptr<State> newState, std::shared_ptr<Context> ctx) override
+  void navigate(const std::string& uri, std::shared_ptr<Context> ctx) override
   {
     auto self(shared_from_this());
-    currentState->Exit(self);
-    currentState = newState;
-    currentState->Enter(self);
-    currentState->Process(self, context);
+    currentPage = pages[uri];
+    currentPage->render(self, context);
   }
 
   void start()
   {
-    currentState = context->states[StateNames::AuthState];
+    currentPage = pages[PageURIs::Auth];
     auto self(shared_from_this());
-    currentState->Process(self, context);
+    currentPage->render(self, context);
   }
 
 private:
 
-  std::shared_ptr<State> currentState;
+  void initPages() {
+    pages[PageURIs::Auth] = std::make_shared<Auth>();
+    pages[PageURIs::Dashboard] = std::make_shared<Dashboard>();
+    pages[PageURIs::Deposit] = std::make_shared<Deposit>();
+    pages[PageURIs::DepositFund] = std::make_shared<DepositFund>();
+    pages[PageURIs::DepositItem] = std::make_shared<DepositItem>();
+    pages[PageURIs::Withdraw] = std::make_shared<Withdraw>();
+    pages[PageURIs::WithdrawFund] = std::make_shared<WithdrawFund>();
+    pages[PageURIs::WithdrawItem] = std::make_shared<WithdrawItem>();
+    pages[PageURIs::Sell] = std::make_shared<Sell>();
+  }
+
+  std::map<std::string, std::shared_ptr<Page>> pages;
+  std::shared_ptr<Page> currentPage;
   std::shared_ptr<Context> context;
 };
