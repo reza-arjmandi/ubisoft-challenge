@@ -1,7 +1,7 @@
 ## Prerequisites
 
 1. **CMake**
-2. **C++17 Compiler (e.g. VS2019)** 
+2. **C++17 Compiler** 
 
 ## Compile and Run Instructions
 
