@@ -16,6 +16,7 @@ namespace PageURIs {
   const std::string WithdrawFund = "/app/dashboard/withdraw/fund";
   const std::string WithdrawItem = "/app/dashboard/withdraw/item";
   const std::string Sell = "/app/dashboard/sell";
+  const std::string Buy = "/app/dashboard/buy";
 };
 
 class Page {

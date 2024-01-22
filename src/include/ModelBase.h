@@ -117,6 +117,11 @@ public:
       return newElem;
     }
 
+    std::vector<std::shared_ptr<T>>> all() const
+    {
+      return buffer;
+    }
+
     void save() {
        active.send([&](){
         dumpToJson();

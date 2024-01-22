@@ -17,7 +17,7 @@ public:
   {
   }
   
-  void askForNumber(std::string msg, std::function<void(int)> handler)
+  void askForNumber(std::string msg, std::function<void(int, bool&)> handler)
   {
     doWrite(msg, 
         [this, handler](boost::system::error_code ec, std::size_t length)
@@ -53,7 +53,7 @@ public:
 
 private:
 
-  void readNumber(std::function<void(int)> handler)
+  void readNumber(std::function<void(int, bool&)> handler)
   {
     std::memset(buff, '\0', buffLength);
     doRead(buff, buffLength, 
@@ -62,17 +62,17 @@ private:
         if (!ec) onReadNumber(handler);
       }
     );
-
   }
 
-  void onReadNumber(std::function<void(int)> handler) 
+  void onReadNumber(std::function<void(int, bool&)> handler) 
   {
     try {
       std::string buffStr(buff);
       auto number = std::stoi(buffStr);
       if (number > 0) {
-        handler(number);
-        return;
+        bool reTake = false; 
+        handler(number, reTake);
+        if (!reTake) return;
       }
     } catch(...) {}
     readNumber(handler);

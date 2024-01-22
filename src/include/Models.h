@@ -30,13 +30,15 @@ struct User: public ModelBase<User> {
 
 ModelBase<User>::DBCollection ModelBase<User>::Collection{};
 
-enum class SaleState {
+enum class SaleState 
+{
   avaiableForSale,
   soldOut,
   expired,
 };
 
-struct SaleItem: public ModelBase<SaleItem> {
+struct SaleItem: public ModelBase<SaleItem> 
+{
   std::time_t createdAt = 0;
   std::string seller = "";
   std::string buyer = "";

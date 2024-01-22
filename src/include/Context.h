@@ -7,7 +7,8 @@
 #include "UserInterface.h"
 #include "Models.h"
 
-struct Context {
+struct Context 
+{
   Context(boost::asio::io_context& ctx)
   : ioContext(ctx) {}
 

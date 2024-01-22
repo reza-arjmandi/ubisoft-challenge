@@ -13,7 +13,9 @@ using boost::asio::ip::tcp;
 
 class Server
 {
+
 public:
+
   Server(boost::asio::io_context& io_context, short port)
     : ioContext(io_context),
       acceptor(io_context, tcp::endpoint(tcp::v4(), port)),
@@ -23,20 +25,21 @@ public:
   }
 
 private:
+
   void doAccept()
   {
     acceptor.async_accept(socket,
-        [this](boost::system::error_code ec)
+      [this](boost::system::error_code ec)
+      {
+        if (!ec)
         {
-          if (!ec)
-          {
-            std::shared_ptr<Context> context = std::make_shared<Context>(ioContext);
-            context->ui = std::make_shared<UserInterface>(std::move(socket));
-            std::make_shared<Session>(context)->start();
-          }
+          std::shared_ptr<Context> context = std::make_shared<Context>(ioContext);
+          context->ui = std::make_shared<UserInterface>(std::move(socket));
+          std::make_shared<Session>(context)->start();
+        }
 
-          doAccept();
-        });
+        doAccept();
+      });
   }
   
   boost::asio::io_context& ioContext;

@@ -15,12 +15,12 @@
 #include "Context.h"
 #include "UserInterface.h"
 
-using boost::asio::ip::tcp;
-
 class Session
   : public std::enable_shared_from_this<Session>, public PageManager
 {
+
 public:
+
   Session(std::shared_ptr<Context> ctx)
   : context(ctx)
   {
@@ -43,7 +43,8 @@ public:
 
 private:
 
-  void initPages() {
+  void initPages() 
+  {
     pages[PageURIs::Auth] = std::make_shared<Auth>();
     pages[PageURIs::Dashboard] = std::make_shared<Dashboard>();
     pages[PageURIs::Deposit] = std::make_shared<Deposit>();
@@ -58,4 +59,5 @@ private:
   std::map<std::string, std::shared_ptr<Page>> pages;
   std::shared_ptr<Page> currentPage;
   std::shared_ptr<Context> context;
+
 };
