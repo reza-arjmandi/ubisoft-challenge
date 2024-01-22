@@ -2,15 +2,12 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
+#include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 
-using boost::asio::ip::tcp;
-
-class Deposit: public Page {
+class Deposit: public Page 
+{
 
 public:
 
@@ -19,24 +16,24 @@ public:
     manager = mgr;
     context = ctx;
     context->ui->askForNumber(GetDepositPageContent(),
-        [this](int number, bool& reTake)
+      [this](int number, bool& reTake)
+      {
+        switch(number)
         {
-          switch(number)
-          {
-            case 1:
-              manager->navigate(PageURIs::DepositFund, context);
-              break;
-            case 2:
-              manager->navigate(PageURIs::DepositItem, context);
-              break;
-            case 3:
-              manager->navigate(PageURIs::Dashboard, context);
-              break;
-            default:
-              reTake = true;
-              break;
-          }
+          case 1:
+            manager->navigate(PageURIs::DepositFund, context);
+            break;
+          case 2:
+            manager->navigate(PageURIs::DepositItem, context);
+            break;
+          case 3:
+            manager->navigate(PageURIs::Dashboard, context);
+            break;
+          default:
+            reTake = true;
+            break;
         }
+      }
     );
   }
   
@@ -58,4 +55,5 @@ private:
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
+
 };

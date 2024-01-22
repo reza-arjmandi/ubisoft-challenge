@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 #include <fstream>
-#include <iostream>
 #include <boost/json.hpp>
 #include "Active.h"
 
@@ -96,13 +95,15 @@ class ModelBase {
 
 public:
 
-  class DBCollection {
+  class DBCollection 
+  {
 
   public:
     std::shared_ptr<T> findOrCreate(std::function<bool(const std::shared_ptr<T>&)> matcher, std::function<std::shared_ptr<T>()> factory) 
     {
       auto found = std::find_if(buffer.cbegin(), buffer.cend(), matcher);
-      if (found != std::cend(buffer)) {
+      if (found != std::cend(buffer)) 
+      {
         return *found;
       }
 
@@ -122,34 +123,40 @@ public:
       return buffer;
     }
 
-    void save() {
-       active.send([&](){
+    void save() 
+    {
+      active.send([&](){
         dumpToJson();
-       });
+      });
     }
 
   private:
-    void dumpToJson() {
-        boost::json::value root;
-        std::string key;
-        boost::json::array itemsArray;
 
-        for (auto& elem : buffer) {
-            boost::json::value value;
-            key = elem->serialize(value);
-            itemsArray.emplace_back(value);
-        }
-        boost::json::object jsonObject;
-        jsonObject.emplace(key, itemsArray);
-        root.emplace_object() = jsonObject;
+    void dumpToJson() 
+    {
+      boost::json::value root;
+      std::string key;
+      boost::json::array itemsArray;
 
-        std::string dbPath = key + ".dump.json";
-        std::ofstream outFile(dbPath);
-        if (outFile.is_open()) {
-            prettyPrint(outFile, root);
-        } else {
-            std::cerr << "Error opening the file for writing." << std::endl;
-        }
+      for (auto& elem : buffer) 
+      {
+        boost::json::value value;
+        key = elem->serialize(value);
+        itemsArray.emplace_back(value);
+      }
+      boost::json::object jsonObject;
+      jsonObject.emplace(key, itemsArray);
+      root.emplace_object() = jsonObject;
+
+      std::string dbPath = key + ".dump.json";
+      std::ofstream outFile(dbPath);
+      if (outFile.is_open()) 
+      {
+        prettyPrint(outFile, root);
+      } else 
+      {
+        std::cerr << "Error opening the file for writing." << std::endl;
+      }
     }
 
     std::vector<std::shared_ptr<T>> buffer;

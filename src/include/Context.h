@@ -1,9 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <map>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
+#include <boost/asio.hpp>
 #include "UserInterface.h"
 #include "Models.h"
 

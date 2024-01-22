@@ -2,16 +2,11 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
 #include <chrono>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
 #include <boost/asio.hpp>
 #include "Page.h"
 #include "Models.h"
 #include "Utils.h"
-
-using boost::asio::ip::tcp;
 
 class Buy: public Page 
 {
@@ -28,12 +23,10 @@ public:
       {
         if(itemNumber > 0 && itemNumber <= saleItems.size()) 
         {
-            onItemRead(itemNumber, saleItems);
+          onItemRead(itemNumber, saleItems);
+          return;
         }
-        else 
-        {
-            reTake = true;
-        }
+        reTake = true;
       }
     );
   }
@@ -75,34 +68,39 @@ private:
   {
     int itemIndex = itemNumber - 1;
     std::string result = "";
-    if (context->user->balance < saleItems[itemIndex]->price) {
-        result = "Can't buy, fund is not enough.";
-    } else {
-        auto sellItem = saleItems[itemIndex];
-        sellItem->state = SaleState::soldOut;
-        sellItem->buyer = context->user;
-        sellItem->buyer->balance -= sellItem->price;
-        sellItem->seller->balance += sellItem->price;
-        auto sellItemName = sellItem->item;
-        sellItem->buyer->items.push_back(sellItemName);
-        auto sellerItems = saleItems[itemIndex]->seller->items;
-        auto found = std::find(sellerItems.begin(), sellerItems.end(), sellItemName);
-        if (found != sellerItems.end()) {
-          sellerItems.erase(found);
-        }
-        User::Collection.save();
-        SaleItem::Collection.save();
-        result = "Buying is successfull.\r\n";
+    if (context->user->balance < saleItems[itemIndex]->price) 
+    {
+      result = "Can't buy, fund is not enough.";
+    } 
+    else 
+    {
+      auto sellItem = saleItems[itemIndex];
+      sellItem->state = SaleState::soldOut;
+      sellItem->buyer = context->user;
+      sellItem->buyer->balance -= sellItem->price;
+      sellItem->seller->balance += sellItem->price;
+      auto sellItemName = sellItem->item;
+      sellItem->buyer->items.push_back(sellItemName);
+      auto sellerItems = saleItems[itemIndex]->seller->items;
+      auto found = std::find(sellerItems.begin(), sellerItems.end(), sellItemName);
+      if (found != sellerItems.end()) 
+      {
+        sellerItems.erase(found);
+      }
+      User::Collection.save();
+      SaleItem::Collection.save();
+      result = "Buying is successfull.\r\n";
     }
     context->ui->doWrite(result,
-        [this](boost::system::error_code ec, std::size_t length)
-        {
-          if(ec) return;
-          manager->navigate(PageURIs::Dashboard, context);
-        }
+      [this](boost::system::error_code ec, std::size_t length)
+      {
+        if(ec) return;
+        manager->navigate(PageURIs::Dashboard, context);
+      }
     );
   }
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
+
 };

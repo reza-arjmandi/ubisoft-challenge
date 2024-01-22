@@ -2,15 +2,12 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
+#include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 
-using boost::asio::ip::tcp;
-
-class Withdraw: public Page {
+class Withdraw: public Page 
+{
 
 public:
 
@@ -19,24 +16,24 @@ public:
     manager = mgr;
     context = ctx;
     context->ui->askForNumber(GetWithdrawPageContent(),
-        [this](int number, bool& reTake)
+      [this](int number, bool& reTake)
+      {
+        switch(number)
         {
-          switch(number)
-          {
-            case 1:
-              manager->navigate(PageURIs::WithdrawFund, context);
-              break;
-            case 2:
-              manager->navigate(PageURIs::WithdrawItem, context);
-              break;
-            case 3:
-              manager->navigate(PageURIs::Dashboard, context);
-              break;
-            default:
-              reTake = true;
-              break;
-          }
+          case 1:
+            manager->navigate(PageURIs::WithdrawFund, context);
+            break;
+          case 2:
+            manager->navigate(PageURIs::WithdrawItem, context);
+            break;
+          case 3:
+            manager->navigate(PageURIs::Dashboard, context);
+            break;
+          default:
+            reTake = true;
+            break;
         }
+      }
     );
   }
   
@@ -47,7 +44,8 @@ public:
 
 private:
 
-  std::string GetWithdrawPageContent() {
+  std::string GetWithdrawPageContent() 
+  {
     std::string content = "1. Withdraw funds\r\n";
     content += "2. Withdraw items\r\n";
     content += "3. Back\r\n";

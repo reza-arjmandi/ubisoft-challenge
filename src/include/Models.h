@@ -4,18 +4,20 @@
 #include <memory>
 #include <vector>
 #include <fstream>
-#include <iostream>
 #include <boost/json.hpp>
 #include "ModelBase.h"
 
-struct User: public ModelBase<User> {
+struct User: public ModelBase<User> 
+{
   std::string name = "";
   int balance = 0;
   std::vector<std::string> items;
 
-  std::string serialize(boost::json::value& jv) override {
+  std::string serialize(boost::json::value& jv) override 
+  {
     boost::json::array itemsArray;
-    for (const auto& item : items) {
+    for (const auto& item : items) 
+    {
       itemsArray.emplace_back(item);
     }
     jv = {
@@ -25,7 +27,6 @@ struct User: public ModelBase<User> {
     };
     return "users";
   }
-
 };
 
 ModelBase<User>::DBCollection ModelBase<User>::Collection{};
@@ -46,7 +47,8 @@ struct SaleItem: public ModelBase<SaleItem>
   int price = 0;
   SaleState state = SaleState::avaiableForSale;
 
-  std::string serialize(boost::json::value& jv) override {
+  std::string serialize(boost::json::value& jv) override 
+  {
     jv = {
         {"createdAt", (int)createdAt},
         {"seller", seller->name},

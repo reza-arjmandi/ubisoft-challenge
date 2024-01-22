@@ -2,15 +2,12 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
+#include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 
-using boost::asio::ip::tcp;
-
-class DepositItem: public Page {
+class DepositItem: public Page 
+{
 
 public:
 
@@ -19,10 +16,10 @@ public:
     manager = mgr;
     context = ctx;
     context->ui->askForString(createUiContent(getUri(), "Enter the item name: "),
-        [this](std::string& itemName)
-        {
-          onReadItem(itemName);
-        }
+      [this](std::string& itemName)
+      {
+        onReadItem(itemName);
+      }
     );
   }
   
@@ -36,11 +33,13 @@ private:
   void onReadItem(const std::string& itemName)
   {
     std::string result;
-    try {
+    try 
+    {
       context->user->items.push_back(itemName);
       User::Collection.save();
       result = "Adding item was successful.\r\n";
-    } catch(...) {
+    } catch(...) 
+    {
       result = "Adding item was failed.\r\n";
     }
     context->ui->doWrite(result,
@@ -53,4 +52,5 @@ private:
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
+
 };

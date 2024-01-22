@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <map>
 #include "Page.h"
 #include "pages/Dashboard.h"
 #include "pages/Auth.h"

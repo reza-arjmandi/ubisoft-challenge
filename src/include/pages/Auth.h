@@ -1,17 +1,12 @@
 #pragma once
 
-#include <vector>
 #include <string>
-#include <iostream>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
 #include "Page.h"
 #include "Models.h"
 #include "Utils.h"
 
-using boost::asio::ip::tcp;
-
-class Auth: public Page {
+class Auth: public Page 
+{
 
 public:
 
@@ -53,4 +48,5 @@ private:
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
+
 };

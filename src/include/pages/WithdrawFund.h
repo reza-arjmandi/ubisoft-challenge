@@ -2,15 +2,12 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
+#include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 
-using boost::asio::ip::tcp;
-
-class WithdrawFund: public Page {
+class WithdrawFund: public Page 
+{
 
 public:
 
@@ -19,15 +16,16 @@ public:
     manager = mgr;
     context = ctx;
     context->ui->askForNumber(createUiContent(getUri(), "Enter the withdraw amount: "),
-        [this](int amount, bool& reTake)
+      [this](int amount, bool& reTake)
+      {
+        if(amount <= 0) 
         {
-          if(amount <= 0) {
-            reTake = true;
-            return;
-          }
-
-          onReadWithdraw(amount);
+          reTake = true;
+          return;
         }
+
+        onReadWithdraw(amount);
+      }
     );
   }
   
@@ -44,7 +42,8 @@ private:
     balance -= amount;
     User::Collection.save();
     bool done = false;
-    if (balance >= 0 ) {
+    if (balance >= 0 ) 
+    {
       context->user->balance = balance;
       done = true;
     }
@@ -59,4 +58,5 @@ private:
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
+
 };

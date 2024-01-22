@@ -2,17 +2,14 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
+#include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 #include "Context.h"
 #include "PageManager.h"
 
-using boost::asio::ip::tcp;
-
-class Dashboard: public Page {
+class Dashboard: public Page 
+{
 
 public:
 
@@ -20,31 +17,34 @@ public:
   {
     manager = mgr;
     context = ctx;
-    context->ui->askForNumber(GetDashboardContent(context->user->name),
-        [this](int number, bool& reTake)
+    context->ui->askForNumber(GetDashboardContent(),
+      [this](int number, bool& reTake)
+      {
+        switch(number)
         {
-          switch(number)
-          {
-            case 1:
-              manager->navigate(PageURIs::Deposit, context);
-              break;
-            case 2:
-              manager->navigate(PageURIs::Withdraw, context);
-              break;
-            case 3:
-              manager->navigate(PageURIs::Sell, context);
-              break;
-            case 4:
-              manager->navigate(PageURIs::Buy, context);
-              break;
-            case 5:
-              manager->navigate(PageURIs::Display, context);
-              break;
-            default:
-              reTake = true;
-              break;
-          }
+          case 1:
+            manager->navigate(PageURIs::Deposit, context);
+            break;
+          case 2:
+            manager->navigate(PageURIs::Withdraw, context);
+            break;
+          case 3:
+            manager->navigate(PageURIs::Sell, context);
+            break;
+          case 4:
+            manager->navigate(PageURIs::Buy, context);
+            break;
+          case 5:
+            manager->navigate(PageURIs::Display, context);
+            break;
+          case 6:
+            manager->navigate(PageURIs::Auth, context);
+            break;
+          default:
+            reTake = true;
+            break;
         }
+      }
     );
   }
   
@@ -55,9 +55,9 @@ public:
 
 private:
 
-  std::string GetDashboardContent(const std::string& username) 
+  std::string GetDashboardContent() 
   {
-    std::string content = "Welcome *** " + username + " ***\r\n";
+    std::string content = "Welcome *** " + context->user->name + " ***\r\n";
     content += "1. Deposit\r\n";
     content += "2. Withdraw\r\n";
     content += "3. Sell\r\n";
@@ -70,4 +70,5 @@ private:
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
+
 };

@@ -2,15 +2,12 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
+#include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 
-using boost::asio::ip::tcp;
-
-class DepositFund: public Page {
+class DepositFund: public Page 
+{
 
 public:
 
@@ -20,14 +17,15 @@ public:
     context = ctx;
     auto content = createUiContent(getUri(), "Enter the deposit amount: ");
     context->ui->askForNumber(content,
-        [this](int depositAmount, bool& reTake)
+      [this](int depositAmount, bool& reTake)
+      {
+        if (depositAmount <= 0) 
         {
-          if (depositAmount <= 0) {
-            reTake = true;
-            return;
-          }
-          onReadDeposit(depositAmount);
+          reTake = true;
+          return;
         }
+        onReadDeposit(depositAmount);
+      }
     );
   }
 
@@ -53,4 +51,5 @@ private:
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
+
 };

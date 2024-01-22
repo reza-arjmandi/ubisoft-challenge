@@ -5,7 +5,6 @@
 #include <chrono>
 #include <queue>
 #include <functional>
-#include <iostream>
 #include <atomic>
 
 class Active 
@@ -13,69 +12,65 @@ class Active
 
 public:
 
-	using MessageType = std::function<void()>;
+  using MessageType = std::function<void()>;
 
-	Active() 
-	{
-		_thd = std::thread([&]() 
-			{
-
-				while (!_is_stopped)
-				{
-					MessageType work;
-					if (_msg_queue.size() == 0)
-					{
-						std::this_thread::sleep_for(
-							std::chrono::milliseconds(100));
-					}
-					else
-					{
-						MessageType work;
-                        {
-							std::lock_guard<std::mutex> lock{ _mutex };
-                            work = _msg_queue.front();
-                        }
-						work();
-						{
-							std::lock_guard<std::mutex> lock{ _mutex };
-							_msg_queue.pop();
-                        }
-					}
-				}
-			}
-		);
-	}
-
-	~Active() {
-		stop();
-	}
-
-	void send(MessageType m) 
-	{
-		std::lock_guard<std::mutex> lock{ _mutex };
-		_msg_queue.push(m);
-	}
-
-	void stop() 
-	{
-		if (_is_stopped)
+  Active() 
+  {
+    thd = std::thread([&]() 
+  	{
+	  while (!isStopped)
+	  {
+		MessageType work;
+		if (msgQueue.size() == 0)
 		{
-			return;
+		  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
+  		else
+  		{
+  		  MessageType work;
+		  {
+			std::lock_guard<std::mutex> lock{ mtx };
+			work = msgQueue.front();
+		  }
+		  work();
+		  {
+			std::lock_guard<std::mutex> lock{ mtx };
+			msgQueue.pop();
+		  }
+		}
+	  }
+	});
+  }
 
-		_msg_queue.push([&]() 
-			{
-			_is_stopped = true;
-			}
-		);
-		_thd.detach();
-	}
+  ~Active() {
+    stop();
+  }
+
+  void send(MessageType m) 
+  {
+    std::lock_guard<std::mutex> lock{ mtx };
+  	msgQueue.push(m);
+  }
+
+  void stop() 
+  {
+  	if (isStopped)
+  	{
+  		return;
+  	}
+  	msgQueue.push([&]() 
+  		{
+  		isStopped = true;
+  		}
+  	);
+  	thd.detach();
+  }
 
 private:
 
-	std::queue<MessageType> _msg_queue;
-	std::atomic<bool> _is_stopped{false};
-	std::mutex _mutex;
-	std::thread _thd;
+  std::queue<MessageType> msgQueue;
+  std::atomic<bool> isStopped{false};
+  std::mutex mtx;
+  std::thread thd;
 
 };

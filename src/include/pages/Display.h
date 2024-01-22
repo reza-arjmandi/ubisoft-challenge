@@ -2,17 +2,14 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
-#include <boost/asio/ts/buffer.hpp>
-#include <boost/asio/ts/internet.hpp>
+#include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 #include "Context.h"
 #include "PageManager.h"
 
-using boost::asio::ip::tcp;
-
-class Display: public Page {
+class Display: public Page 
+{
 
 public:
 
@@ -42,7 +39,8 @@ private:
     content += "*. Balance: " + std::to_string(context->user->balance) + "\r\n";
     content += "*. Items: \r\n";
     int counter = 1;
-    for(const auto& item : context->user->items) {
+    for(const auto& item : context->user->items) 
+    {
       content += std::to_string(counter++);
       content += ". " + item + "\r\n";
     }
@@ -51,4 +49,5 @@ private:
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
+
 };
