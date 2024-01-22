@@ -22,8 +22,3 @@ This project leverages the `boost.asio` library to manage network connections. U
 
 In real-time, the server continuously updates and dumps user and item information to a JSON file. To handle the heavy task of serializing and writing to the file, the project employs the Active Object pattern, enhancing efficiency and performance.
 
-## External Library: FOB (FindOrBuild)
-
-This project utilizes the FOB (FindOrBuild) library, which is a CMake module set functioning as a package manager. FOB is designed to download and build packages that cannot be found using the typical `find_package` approach.
-
-For more information on FOB and its functionalities, refer to the official repository: [FindOrBuild on GitHub](https://github.com/misoboute/findorbuild).
