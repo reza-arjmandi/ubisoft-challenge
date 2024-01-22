@@ -1,0 +1,18 @@
+
+{
+    "name": "auction-house",
+    "version-string": "0.0.1",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name" : "vcpkg-cmake",
+            "host" : true
+        },
+        {
+            "name" : "vcpkg-cmake-config",
+            "host" : true
+        },
+        "boost-asio",
+        "boost-json"
+    ]
+}
