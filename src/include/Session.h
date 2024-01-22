@@ -53,7 +53,7 @@ private:
     pages[PageURIs::Withdraw] = std::make_shared<Withdraw>();
     pages[PageURIs::WithdrawFund] = std::make_shared<WithdrawFund>();
     pages[PageURIs::WithdrawItem] = std::make_shared<WithdrawItem>();
-    pages[PageURIs::Sell] = std::make_shared<Sell>();
+    // pages[PageURIs::Sell] = std::make_shared<Sell>();
   }
 
   std::map<std::string, std::shared_ptr<Page>> pages;

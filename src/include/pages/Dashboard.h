@@ -21,7 +21,7 @@ public:
     manager = mgr;
     context = ctx;
     context->ui->askForNumber(GetDashboardContent(context->user->name),
-        [this](int number)
+        [this](int number, bool& reTake)
         {
           switch(number)
           {
@@ -35,7 +35,7 @@ public:
               manager->navigate(PageURIs::Sell, context);
               break;
             default:
-              manager->navigate(PageURIs::Dashboard, context);
+              reTake = true;
               break;
           }
         }

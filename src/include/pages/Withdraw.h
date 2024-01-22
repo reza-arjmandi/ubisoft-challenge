@@ -19,7 +19,7 @@ public:
     manager = mgr;
     context = ctx;
     context->ui->askForNumber(GetWithdrawPageContent(),
-        [this](int number)
+        [this](int number, bool& reTake)
         {
           switch(number)
           {
@@ -33,7 +33,7 @@ public:
               manager->navigate(PageURIs::Dashboard, context);
               break;
             default:
-              manager->navigate(PageURIs::Withdraw, context);
+              reTake = true;
               break;
           }
         }

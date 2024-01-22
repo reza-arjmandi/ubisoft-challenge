@@ -19,8 +19,13 @@ public:
     manager = mgr;
     context = ctx;
     context->ui->askForNumber(createUiContent(getUri(), "Enter the withdraw amount: "),
-        [this](int amount)
+        [this](int amount, bool& reTake)
         {
+          if(amount <= 0) {
+            reTake = true;
+            return;
+          }
+
           onReadWithdraw(amount);
         }
     );
@@ -35,20 +40,15 @@ private:
 
   void onReadWithdraw(int amount)
   {
-    std::string result;
-    if(amount > 0) {
-      auto balance = context->user->balance;
-      balance -= amount;
-      User::Collection.save();
-      bool done = false;
-      if (balance >= 0 ) {
-        context->user->balance = balance;
-        done = true;
-      }
-      result = done ? "Withdraw was successful.\r\n" : "You don't have enough balance.\r\n";
-    } else {
-      result = "Withdraw was failed, negative number.\r\n";
+    auto balance = context->user->balance;
+    balance -= amount;
+    User::Collection.save();
+    bool done = false;
+    if (balance >= 0 ) {
+      context->user->balance = balance;
+      done = true;
     }
+    std::string result = done ? "Withdraw was successful.\r\n" : "You don't have enough balance.\r\n";
     context->ui->doWrite(result,
       [this](boost::system::error_code ec, std::size_t length)
       {

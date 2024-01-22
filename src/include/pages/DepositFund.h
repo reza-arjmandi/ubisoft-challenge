@@ -20,8 +20,12 @@ public:
     context = ctx;
     auto content = createUiContent(getUri(), "Enter the deposit amount: ");
     context->ui->askForNumber(content,
-        [this](int depositAmount)
+        [this](int depositAmount, bool& reTake)
         {
+          if (depositAmount <= 0) {
+            reTake = true;
+            return;
+          }
           onReadDeposit(depositAmount);
         }
     );
@@ -36,15 +40,9 @@ private:
 
   void onReadDeposit(int depositAmount)
   {
-    std::string result;
-    if(depositAmount > 0) {
-      context->user->balance += depositAmount;
-      User::Collection.save();
-      result = "Deposit was successful.\r\n";
-      
-    } else {
-      result = "Deposit was failed, negative number.\r\n";
-    }
+    context->user->balance += depositAmount;
+    User::Collection.save();
+    std::string result = "Deposit was successful.\r\n";
     context->ui->doWrite(result,
       [this](boost::system::error_code ec, std::size_t length)
       {
