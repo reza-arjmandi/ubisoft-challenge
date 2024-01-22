@@ -7,6 +7,10 @@
 
 Follow these steps to compile and run the project:
 ```sh
+git clone https://github.com/Microsoft/vcpkg.git
+./vcpkg/bootstrap-vcpkg.sh
+./vcpkg/vcpkg.exe install boost-asio
+./vcpkg/vcpkg.exe install boost-json
 cmake -B build -S .
 cmake --build build
 auction-house.exe 8080
