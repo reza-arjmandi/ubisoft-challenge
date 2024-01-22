@@ -40,8 +40,8 @@ enum class SaleState
 struct SaleItem: public ModelBase<SaleItem> 
 {
   std::time_t createdAt = 0;
-  std::string seller = "";
-  std::string buyer = "";
+  std::shared_ptr<User> seller = nullptr;
+  std::shared_ptr<User> buyer = nullptr;
   std::string item = "";
   int price = 0;
   SaleState state = SaleState::avaiableForSale;
@@ -49,8 +49,8 @@ struct SaleItem: public ModelBase<SaleItem>
   std::string serialize(boost::json::value& jv) override {
     jv = {
         {"createdAt", (int)createdAt},
-        {"seller", seller},
-        {"buyer", buyer},
+        {"seller", seller->name},
+        {"buyer", buyer != nullptr ? buyer->name : ""},
         {"item", item},
         {"price", price},
         {"state", (int)state}

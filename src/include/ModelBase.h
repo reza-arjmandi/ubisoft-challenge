@@ -10,7 +10,7 @@
 
 namespace json = boost::json;
 
-void pretty_print( std::ostream& os, json::value const& jv, std::string* indent = nullptr )
+void prettyPrint( std::ostream& os, json::value const& jv, std::string* indent = nullptr )
 {
     std::string indent_;
     if(! indent)
@@ -28,7 +28,7 @@ void pretty_print( std::ostream& os, json::value const& jv, std::string* indent 
             for(;;)
             {
                 os << *indent << json::serialize(it->key()) << " : ";
-                pretty_print(os, it->value(), indent);
+                prettyPrint(os, it->value(), indent);
                 if(++it == obj.end())
                     break;
                 os << ",\n";
@@ -51,7 +51,7 @@ void pretty_print( std::ostream& os, json::value const& jv, std::string* indent 
             for(;;)
             {
                 os << *indent;
-                pretty_print( os, *it, indent);
+                prettyPrint( os, *it, indent);
                 if(++it == arr.end())
                     break;
                 os << ",\n";
@@ -117,10 +117,10 @@ public:
       return newElem;
     }
 
-    // std::vector<std::shared_ptr<T>>> all() const
-    // {
-    //   return buffer;
-    // }
+    std::vector<std::shared_ptr<T>> all() const
+    {
+      return buffer;
+    }
 
     void save() {
        active.send([&](){
@@ -143,10 +143,10 @@ public:
         jsonObject.emplace(key, itemsArray);
         root.emplace_object() = jsonObject;
 
-        std::string dbPath = key + ".json";
+        std::string dbPath = key + ".dump.json";
         std::ofstream outFile(dbPath);
         if (outFile.is_open()) {
-            pretty_print(outFile, root);
+            prettyPrint(outFile, root);
         } else {
             std::cerr << "Error opening the file for writing." << std::endl;
         }

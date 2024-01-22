@@ -11,6 +11,8 @@
 #include "pages/DepositFund.h"
 #include "pages/DepositItem.h"
 #include "pages/Sell.h"
+#include "pages/Buy.h"
+#include "pages/Display.h"
 #include "PageManager.h"
 #include "Context.h"
 #include "UserInterface.h"
@@ -53,7 +55,9 @@ private:
     pages[PageURIs::Withdraw] = std::make_shared<Withdraw>();
     pages[PageURIs::WithdrawFund] = std::make_shared<WithdrawFund>();
     pages[PageURIs::WithdrawItem] = std::make_shared<WithdrawItem>();
-    // pages[PageURIs::Sell] = std::make_shared<Sell>();
+    pages[PageURIs::Sell] = std::make_shared<Sell>();
+    pages[PageURIs::Buy] = std::make_shared<Buy>();
+    pages[PageURIs::Display] = std::make_shared<Display>();
   }
 
   std::map<std::string, std::shared_ptr<Page>> pages;

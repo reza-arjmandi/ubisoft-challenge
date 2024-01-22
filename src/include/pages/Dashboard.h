@@ -34,6 +34,12 @@ public:
             case 3:
               manager->navigate(PageURIs::Sell, context);
               break;
+            case 4:
+              manager->navigate(PageURIs::Buy, context);
+              break;
+            case 5:
+              manager->navigate(PageURIs::Display, context);
+              break;
             default:
               reTake = true;
               break;
