@@ -1,4 +1,5 @@
 set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/src")
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 project(auction-house C CXX)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS json)
