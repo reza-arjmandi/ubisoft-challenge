@@ -9,9 +9,9 @@ Follow these steps to compile and run the project:
 ```sh
 git submodule init
 git submodule update --recursive
- .\vcpkg\bootstrap-vcpkg.bat
- .\vcpkg\vcpkg.exe install
- ./auction-house.exe 8080
+.\vcpkg\bootstrap-vcpkg.bat
+.\vcpkg\vcpkg.exe install
+auction-house.exe 8080
 ``````
 
 ## Overview
