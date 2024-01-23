@@ -14,7 +14,7 @@ boost::asio::io_context ioContext;
 struct User: public ModelBase<User> 
 {
   std::string name = "";
-  int balance = 0;
+  int64_t balance = 0;
   std::vector<std::string> items;
 
   std::string serialize(boost::json::value& jv) override 
@@ -58,7 +58,7 @@ struct SaleItem: public ModelBase<SaleItem>
   std::shared_ptr<User> seller = nullptr;
   std::shared_ptr<User> buyer = nullptr;
   std::string item = "";
-  int price = 0;
+  int64_t price = 0;
   SaleState state = SaleState::avaiableForSale;
 
   std::string serialize(boost::json::value& jv) override 

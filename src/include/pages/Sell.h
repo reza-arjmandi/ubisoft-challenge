@@ -90,7 +90,21 @@ private:
 
   void onPriceRead(int price) 
   {
-      //TODO TRANSACTION
+    auto result = sell(price);
+    std::string message = result ? "The item has put up for sale successfully.\r\n" : "Sell is failed.\r\n";
+    context->ui->doWrite(message,
+      [this](boost::system::error_code ec, std::size_t length)
+      {
+        if (!ec) manager->navigate(PageURIs::Dashboard, context);
+      }
+    );
+  }
+
+  bool sell(int price)
+  {
+    bool result = true;
+    try
+    {
       auto saleItem = SaleItem::Collection.create([&]() {
         auto result = std::make_shared<SaleItem>();
         result->item = context->user->items[itemIndex];
@@ -100,14 +114,14 @@ private:
         auto currentTime = std::chrono::system_clock::now();
         result->createdAt = std::chrono::system_clock::to_time_t(currentTime);
         return result;
-      });
+      }, false);
+
       auto newItems = context->user->items;
       newItems.erase(newItems.begin() + itemIndex);
       auto newBalance = context->user->balance - fee;
       context->user->items = newItems;
       context->user->balance = newBalance;
-      User::Collection.save();
-      
+
       auto timer = std::make_shared<boost::asio::deadline_timer>(context->ioContext);
       timer->expires_from_now(fiveMinutes);
       timer->async_wait([saleItem, timer, this](const boost::system::error_code& ec){
@@ -120,12 +134,16 @@ private:
           User::Collection.save();
         }
       });
-      context->ui->doWrite("The item has put up for sale successfully.\r\n",
-        [this](boost::system::error_code ec, std::size_t length)
-        {
-          if (!ec) manager->navigate(PageURIs::Dashboard, context);
-        }
-      );
+
+      //TODO TRANSACTION
+      User::Collection.save();
+      SaleItem::Collection.save();
+    }
+    catch(...)
+    {
+      result = false;
+    }
+    return result;
   }
 
   std::shared_ptr<PageManager> manager;

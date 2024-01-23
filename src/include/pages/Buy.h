@@ -66,30 +66,15 @@ private:
 
   void onItemRead(int itemNumber, std::vector<std::shared_ptr<SaleItem>> saleItems)
   {
-    int itemIndex = itemNumber - 1;
     std::string result = "";
+    int itemIndex = itemNumber - 1;
     if (context->user->balance < saleItems[itemIndex]->price) 
     {
       result = "Can't buy, fund is not enough.";
     } 
     else 
     {
-      auto sellItem = saleItems[itemIndex];
-      sellItem->state = SaleState::soldOut;
-      sellItem->buyer = context->user;
-      sellItem->buyer->balance -= sellItem->price;
-      sellItem->seller->balance += sellItem->price;
-      auto sellItemName = sellItem->item;
-      sellItem->buyer->items.push_back(sellItemName);
-      auto sellerItems = saleItems[itemIndex]->seller->items;
-      auto found = std::find(sellerItems.begin(), sellerItems.end(), sellItemName);
-      if (found != sellerItems.end()) 
-      {
-        sellerItems.erase(found);
-      }
-      User::Collection.save();
-      SaleItem::Collection.save();
-      result = "Buying is successfull.\r\n";
+      result = buy(saleItems[itemIndex]) ? "Buying is successfull.\r\n" : "Buying is failed.\r\n";
     }
     context->ui->doWrite(result,
       [this](boost::system::error_code ec, std::size_t length)
@@ -100,6 +85,34 @@ private:
     );
   }
 
+  bool buy(std::shared_ptr<SaleItem> sellItem)
+  {
+    bool result = true;
+    try
+    {
+      sellItem->state = SaleState::soldOut;
+      sellItem->buyer = context->user;
+      sellItem->buyer->balance -= sellItem->price;
+      sellItem->seller->balance += sellItem->price;
+      auto sellItemName = sellItem->item;
+      sellItem->buyer->items.push_back(sellItemName);
+      auto sellerItems = sellItem->seller->items;
+      auto found = std::find(sellerItems.begin(), sellerItems.end(), sellItemName);
+      if (found != sellerItems.end()) 
+      {
+        sellerItems.erase(found);
+      }
+
+      //TODO TRANSACTION
+      User::Collection.save();
+      SaleItem::Collection.save();
+    }
+    catch(...)
+    {
+      result = false;
+    }
+    return result;
+  }
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
 

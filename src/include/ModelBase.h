@@ -124,11 +124,11 @@ public:
       return create(factory);
     }
 
-    std::shared_ptr<T> create(std::function<std::shared_ptr<T>()> factory) 
+    std::shared_ptr<T> create(std::function<std::shared_ptr<T>()> factory, bool persist = true) 
     {
       auto newElem = factory();
       buffer.push_back(newElem);
-      save();
+      if (persist) save();
       return newElem;
     }
 
