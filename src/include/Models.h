@@ -7,6 +7,9 @@
 #include <fstream>
 #include <boost/json.hpp>
 #include "ModelBase.h"
+#include <boost/asio.hpp>
+
+boost::asio::io_context ioContext;
 
 struct User: public ModelBase<User> 
 {
@@ -96,19 +99,38 @@ struct SaleItem: public ModelBase<SaleItem>
         return newUser;
       }
     );
-    auto currentTime = std::chrono::system_clock::now();
-    auto currentTimeEpoch = std::chrono::duration_cast<std::chrono::seconds>(currentTime.time_since_epoch()).count();
 
     switch(jv.at("state").as_int64())
     {
       case 0:
+      {
+        auto currentTime = std::chrono::system_clock::now();
+        auto currentTimeEpoch = std::chrono::duration_cast<std::chrono::seconds>(currentTime.time_since_epoch()).count();
+
         state = SaleState::avaiableForSale;
-        if (currentTimeEpoch - createdAt >= 300)
+        auto diff = currentTimeEpoch - createdAt;
+        if (diff >= 300)
         {
           state = SaleState::expired;
           seller->items.push_back(item);
         }
+        else 
+        {
+          auto timer = std::make_shared<boost::asio::deadline_timer>(ioContext);
+          boost::posix_time::seconds deadline{diff};
+          timer->expires_from_now(deadline);
+          timer->async_wait([this, timer](const boost::system::error_code& ec){
+            if (ec) return;
+            if (state == SaleState::avaiableForSale) 
+            {
+              state = SaleState::expired;
+              seller->items.push_back(item);
+              User::Collection.save();
+            }
+          });
+        }
         break;
+      }
       case 1: 
         state = SaleState::soldOut;
         break;    
@@ -118,6 +140,7 @@ struct SaleItem: public ModelBase<SaleItem>
       default:
         break;
     }
+    User::Collection.save();
   }
 };
 

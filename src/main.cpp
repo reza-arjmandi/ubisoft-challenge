@@ -1,8 +1,8 @@
 #include <cstdlib>
 #include <iostream>
-#include <boost/asio.hpp>
 
 #include "Server.h"
+#include "Models.h"
 
 int main(int argc, char* argv[])
 {
@@ -14,9 +14,8 @@ int main(int argc, char* argv[])
       return 1;
     }
 
-    boost::asio::io_context io_context;
-    Server s(io_context, std::atoi(argv[1]));
-    io_context.run();
+    Server s(ioContext, std::atoi(argv[1]));
+    ioContext.run();
   }
   catch (std::exception& e)
   {

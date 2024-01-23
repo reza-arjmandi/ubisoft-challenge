@@ -116,8 +116,9 @@ private:
         {
           saleItem->state = SaleState::expired;
           SaleItem::Collection.save();
+          context->user->items.push_back(saleItem->item);
+          User::Collection.save();
         }
-        context->user->items.push_back(saleItem->item);
       });
       context->ui->doWrite("The item has put up for sale successfully.\r\n",
         [this](boost::system::error_code ec, std::size_t length)
