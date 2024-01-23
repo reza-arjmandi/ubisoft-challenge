@@ -19,9 +19,11 @@ class Buy: public Page {
       [this, saleItems](int itemNumber, bool& reTake) {
         if (itemNumber > 0 && itemNumber <= saleItems.size()) {
           onItemRead(itemNumber, saleItems);
-          return;
+        } else if (itemNumber == saleItems.size() + 1) {
+          manager->navigate(PageURIs::Dashboard, context);
+        } else {
+          reTake = true;
         }
-        reTake = true;
       });
   }
 
@@ -39,6 +41,7 @@ class Buy: public Page {
       content += "Price: " + std::to_string(elem->price) + ", ";
       content += "Seller: " + elem->seller->name + "\r\n";
     }
+    content += std::to_string(counter++) + ". Back\r\n";
     content += "Choose an item to buy: ";
     return createUiContent(getUri(), content);
   }

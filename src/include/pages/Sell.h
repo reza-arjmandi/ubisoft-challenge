@@ -19,14 +19,18 @@ class Sell: public Page {
         manager->navigate(PageURIs::Dashboard, context);
       };
     if (context->user->items.size() == 0) {
-      context->ui->doWrite(createUiContent(getUri(), "No item found to sell, please deposit an item."), failHandler);
+      context->ui->doWrite(createUiContent(getUri(),
+        "No item found to sell, please deposit an item.\r\n"), failHandler);
     } else if (context->user->balance < fee) {
-      context->ui->doWrite(createUiContent(getUri(), "Balance is not enough, please deposit fund."), failHandler);
+      context->ui->doWrite(createUiContent(getUri(), "Balance is not enough, please deposit fund.\r\n"), failHandler);
     } else {
       context->ui->askForNumber(GetItems(),
         [this](int itemNumber, bool& reTake) {
-          if (itemNumber > 0 && itemNumber <= context->user->items.size()) {
+          auto itemsSize = context->user->items.size();
+          if (itemNumber > 0 && itemNumber <= itemsSize) {
             onItemRead(itemNumber);
+          } else if (itemNumber == itemsSize + 1) {
+            manager->navigate(PageURIs::Dashboard, context);
           } else {
             reTake = true;
           }
@@ -47,6 +51,7 @@ class Sell: public Page {
       content += std::to_string(counter++);
       content += ". " + item + "\r\n";
     }
+    content += std::to_string(counter++) + ". Back\r\n";
     content += "Choose an item to sell: ";
     return createUiContent(getUri(), content);
   }
