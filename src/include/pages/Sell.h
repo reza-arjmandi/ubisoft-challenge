@@ -75,6 +75,9 @@ class Sell: public Page {
   bool sell(int price) {
     bool result = true;
     try {
+      auto expireTimer = std::make_shared<boost::asio::deadline_timer>(context->ioContext);
+      expireTimer->expires_from_now(fiveMinutes);
+
       auto saleItem = SaleItem::Collection.create([&]() {
         auto result = std::make_shared<SaleItem>();
         result->item = context->user->items[itemIndex];
@@ -86,15 +89,7 @@ class Sell: public Page {
         return result;
       }, false);
 
-      auto newItems = context->user->items;
-      newItems.erase(newItems.begin() + itemIndex);
-      auto newBalance = context->user->balance - fee;
-      context->user->items = newItems;
-      context->user->balance = newBalance;
-
-      auto timer = std::make_shared<boost::asio::deadline_timer>(context->ioContext);
-      timer->expires_from_now(fiveMinutes);
-      timer->async_wait([saleItem, timer, this](const boost::system::error_code& ec){
+      expireTimer->async_wait([saleItem, expireTimer, this](const boost::system::error_code& ec){
         if (ec) return;
         if (saleItem->state == SaleState::avaiableForSale) {
           saleItem->state = SaleState::expired;
@@ -103,6 +98,13 @@ class Sell: public Page {
           User::Collection.save();
         }
       });
+
+      auto newItems = context->user->items;
+      newItems.erase(newItems.begin() + itemIndex);
+      auto newBalance = context->user->balance - fee;
+
+      context->user->items = newItems;
+      context->user->balance = newBalance;
 
       // TODO(TRANSACTION)
       User::Collection.save();

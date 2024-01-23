@@ -34,7 +34,7 @@ class Buy: public Page {
     std::string content = "List of items on sale:\r\n";
     int counter = 1;
     for (const auto& elem : saleItems) {
-      content += std::to_string(counter);
+      content += std::to_string(counter++);
       content += ". Item: " + elem->item + ", ";
       content += "Price: " + std::to_string(elem->price) + ", ";
       content += "Seller: " + elem->seller->name + "\r\n";
@@ -46,7 +46,9 @@ class Buy: public Page {
   std::vector<std::shared_ptr<SaleItem>> GetSaleItems() {
     std::vector<std::shared_ptr<SaleItem>> result;
     for (const auto& elem : SaleItem::Collection.all()) {
-      if (elem->seller->name == context->user->name || elem->state == SaleState::expired) continue;
+      if (elem->seller->name == context->user->name
+      || elem->state == SaleState::expired
+      || elem->state == SaleState::soldOut) continue;
       result.push_back(elem);
     }
     return result;
@@ -70,17 +72,29 @@ class Buy: public Page {
   bool buy(std::shared_ptr<SaleItem> sellItem) {
     bool result = true;
     try {
-      sellItem->state = SaleState::soldOut;
-      sellItem->buyer = context->user;
-      sellItem->buyer->balance -= sellItem->price;
-      sellItem->seller->balance += sellItem->price;
+      auto buyer = context->user;
       auto sellItemName = sellItem->item;
-      sellItem->buyer->items.push_back(sellItemName);
-      auto sellerItems = sellItem->seller->items;
-      auto found = std::find(sellerItems.begin(), sellerItems.end(), sellItemName);
-      if (found != sellerItems.end()) {
-        sellerItems.erase(found);
+      auto newBuyerItems = buyer->items;
+      newBuyerItems.push_back(sellItemName);
+      auto newBuyerBalance = buyer->balance - sellItem->price;
+
+      auto seller = sellItem->seller;
+      auto newSellerBalance = seller->balance + sellItem->price;
+      auto newSellerItems = seller->items;
+      auto found = std::find(newSellerItems.begin(), newSellerItems.end(), sellItemName);
+      if (found != newSellerItems.end()) {
+        newSellerItems.erase(found);
       }
+
+      // Commit
+      buyer->items = newBuyerItems;
+      buyer->balance = newBuyerBalance;
+
+      seller->balance = newSellerBalance;
+      seller->items = newSellerItems;
+
+      sellItem->buyer = buyer;
+      sellItem->state = SaleState::soldOut;
 
       // TODO(TRANSACTION)
       User::Collection.save();

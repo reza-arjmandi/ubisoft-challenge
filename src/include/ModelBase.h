@@ -119,9 +119,11 @@ class ModelBase {
     }
 
     void save() {
-      active.send([&](){
-        dumpToJson();
-      });
+      try {
+        active.send([&](){
+          dumpToJson();
+        });
+      } catch(...) {}
     }
 
    private:
