@@ -2,55 +2,42 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 
-class DepositItem: public Page 
-{
-
-public:
-
-  void render(std::shared_ptr<PageManager> mgr, std::shared_ptr<Context> ctx) override
-  {
+class DepositItem: public Page {
+ public:
+  void render(std::shared_ptr<PageManager> mgr, std::shared_ptr<Context> ctx) override {
     manager = mgr;
     context = ctx;
     context->ui->askForString(createUiContent(getUri(), "Enter the item name: "),
-      [this](std::string& itemName)
-      {
+      [this](std::string& itemName) {
         onReadItem(itemName);
-      }
-    );
+      });
   }
-  
-  std::string getUri() const override 
-  {
+
+  std::string getUri() const override {
     return PageURIs::DepositItem;
   }
 
-private:
-
-  void onReadItem(const std::string& itemName)
-  {
+ private:
+  void onReadItem(const std::string& itemName) {
     std::string result;
-    try 
-    {
+    try {
       context->user->items.push_back(itemName);
       User::Collection.save();
       result = "Adding item was successful.\r\n";
-    } catch(...) 
-    {
+    } catch(...) {
       result = "Adding item was failed.\r\n";
     }
     context->ui->doWrite(result,
-      [this](boost::system::error_code ec, std::size_t length)
-      {
+      [this](boost::system::error_code ec, std::size_t length){
         if (!ec) manager->navigate(PageURIs::Deposit, context);
-      }
-    );
+      });
   }
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
-
 };

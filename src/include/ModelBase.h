@@ -11,27 +11,20 @@
 namespace json = boost::json;
 namespace fs = std::filesystem;
 
-void prettyPrint( std::ostream& os, json::value const& jv, std::string* indent = nullptr )
-{
+void prettyPrint(std::ostream& os, json::value const& jv, std::string* indent = nullptr ) {
     std::string indent_;
-    if(! indent)
-        indent = &indent_;
-    switch(jv.kind())
-    {
-    case json::kind::object:
-    {
+    if (!indent) indent = &indent_;
+    switch (jv.kind()) {
+    case json::kind::object: {
         os << "{\n";
         indent->append(4, ' ');
         auto const& obj = jv.get_object();
-        if(! obj.empty())
-        {
+        if (!obj.empty()) {
             auto it = obj.begin();
-            for(;;)
-            {
+            for (;;) {
                 os << *indent << json::serialize(it->key()) << " : ";
                 prettyPrint(os, it->value(), indent);
-                if(++it == obj.end())
-                    break;
+                if (++it == obj.end()) break;
                 os << ",\n";
             }
         }
@@ -46,15 +39,12 @@ void prettyPrint( std::ostream& os, json::value const& jv, std::string* indent =
         os << "[\n";
         indent->append(4, ' ');
         auto const& arr = jv.get_array();
-        if(! arr.empty())
-        {
+        if (!arr.empty()) {
             auto it = arr.begin();
-            for(;;)
-            {
+            for (;;) {
                 os << *indent;
-                prettyPrint( os, *it, indent);
-                if(++it == arr.end())
-                    break;
+                prettyPrint(os, *it, indent);
+                if (++it == arr.end()) break;
                 os << ",\n";
             }
         }
@@ -77,7 +67,7 @@ void prettyPrint( std::ostream& os, json::value const& jv, std::string* indent =
         break;
 
     case json::kind::bool_:
-        if(jv.get_bool())
+        if (jv.get_bool())
             os << "true";
         else
             os << "false";
@@ -88,21 +78,15 @@ void prettyPrint( std::ostream& os, json::value const& jv, std::string* indent =
         break;
     }
 
-    if(indent->empty())
-        os << "\n";
+    if (indent->empty()) os << "\n";
 }
 
 template<typename T>
 class ModelBase {
-
-public:
-
-  class DBCollection 
-  {
-
-  public:
-    DBCollection(const std::string& dbName)
-    {
+ public:
+  class DBCollection {
+   public:
+    explicit DBCollection(const std::string& dbName) {
       readFromJson(dbName);
       auto timer = std::make_shared<boost::asio::deadline_timer>(ioContext);
       boost::posix_time::seconds deadline{2};
@@ -113,49 +97,41 @@ public:
       });
     }
 
-    std::shared_ptr<T> findOrCreate(std::function<bool(const std::shared_ptr<T>&)> matcher, std::function<std::shared_ptr<T>()> factory) 
-    {
+    std::shared_ptr<T> findOrCreate(
+      std::function<bool(const std::shared_ptr<T>&)> matcher, std::function<std::shared_ptr<T>()> factory) {
       auto found = std::find_if(buffer.cbegin(), buffer.cend(), matcher);
-      if (found != std::cend(buffer)) 
-      {
+      if (found != std::cend(buffer)) {
         return *found;
       }
 
       return create(factory);
     }
 
-    std::shared_ptr<T> create(std::function<std::shared_ptr<T>()> factory, bool persist = true) 
-    {
+    std::shared_ptr<T> create(std::function<std::shared_ptr<T>()> factory, bool persist = true) {
       auto newElem = factory();
       buffer.push_back(newElem);
       if (persist) save();
       return newElem;
     }
 
-    std::vector<std::shared_ptr<T>> all() const
-    {
+    std::vector<std::shared_ptr<T>> all() const {
       return buffer;
     }
 
-    void save() 
-    {
+    void save() {
       active.send([&](){
         dumpToJson();
       });
     }
 
-  private:
-
-    void readFromJson(const std::string& dbName) 
-    {
+   private:
+    void readFromJson(const std::string& dbName) {
       std::string dbPath = dbName + ".dump.json";
-      if (!fs::exists(dbPath)) 
-      {
+      if (!fs::exists(dbPath)) {
         return;
       }
       std::ifstream jsonFile(dbPath);
-      if (!jsonFile.is_open()) 
-      {
+      if (!jsonFile.is_open()) {
         std::cerr << "Error opening JSON file." << std::endl;
         return;
       }
@@ -166,25 +142,22 @@ public:
       boost::json::value jsonValue = boost::json::parse(jsonString, ec);
       if (ec) {
         std::cerr << "Error parsing JSON: " << ec.message() << std::endl;
-        return ;
+        return;
       }
 
-      for (auto& elem : jsonValue.at(dbName).as_array())
-      {
+      for (auto& elem : jsonValue.at(dbName).as_array()) {
         auto result = std::make_shared<T>();
         result->deSerialize(elem);
         buffer.push_back(result);
       }
     }
 
-    void dumpToJson() 
-    {
+    void dumpToJson() {
       boost::json::value root;
       std::string key;
       boost::json::array itemsArray;
 
-      for (auto& elem : buffer) 
-      {
+      for (auto& elem : buffer) {
         boost::json::value value;
         key = elem->serialize(value);
         itemsArray.emplace_back(value);
@@ -195,23 +168,18 @@ public:
 
       std::string dbPath = key + ".dump.json";
       std::ofstream outFile(dbPath);
-      if (outFile.is_open()) 
-      {
+      if (outFile.is_open()) {
         prettyPrint(outFile, root);
-      } else 
-      {
+      } else {
         std::cerr << "Error opening the file for writing." << std::endl;
       }
     }
 
     std::vector<std::shared_ptr<T>> buffer;
     Active active;
-
   };
 
   virtual std::string serialize(boost::json::value& jv) = 0;
   virtual void deSerialize(boost::json::value& jv) = 0; 
-
   static DBCollection Collection;
-
 };

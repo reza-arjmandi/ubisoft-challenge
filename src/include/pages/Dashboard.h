@@ -2,26 +2,21 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 #include "Context.h"
 #include "PageManager.h"
 
-class Dashboard: public Page 
-{
-
-public:
-
-  void render(std::shared_ptr<PageManager> mgr, std::shared_ptr<Context> ctx) override
-  {
+class Dashboard: public Page {
+ public:
+  void render(std::shared_ptr<PageManager> mgr, std::shared_ptr<Context> ctx) override {
     manager = mgr;
     context = ctx;
     context->ui->askForNumber(GetDashboardContent(),
-      [this](int number, bool& reTake)
-      {
-        switch(number)
-        {
+      [this](int number, bool& reTake) {
+        switch (number) {
           case 1:
             manager->navigate(PageURIs::Deposit, context);
             break;
@@ -44,19 +39,15 @@ public:
             reTake = true;
             break;
         }
-      }
-    );
+      });
   }
-  
-  std::string getUri() const override 
-  {
+
+  std::string getUri() const override {
     return PageURIs::Dashboard;
   }
 
-private:
-
-  std::string GetDashboardContent() 
-  {
+ private:
+  std::string GetDashboardContent() {
     std::string content = "Welcome *** " + context->user->name + " ***\r\n";
     content += "1. Deposit\r\n";
     content += "2. Withdraw\r\n";
@@ -70,5 +61,4 @@ private:
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
-
 };

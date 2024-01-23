@@ -2,45 +2,36 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <boost/asio.hpp>
 #include "Page.h"
 #include "Utils.h"
 #include "Context.h"
 #include "PageManager.h"
 
-class Display: public Page 
-{
-
-public:
-
-  void render(std::shared_ptr<PageManager> mgr, std::shared_ptr<Context> ctx) override
-  {
+class Display: public Page {
+ public:
+  void render(std::shared_ptr<PageManager> mgr, std::shared_ptr<Context> ctx) override {
     manager = mgr;
     context = ctx;
     context->ui->doWrite(GetContent(),
-        [this](boost::system::error_code ec, std::size_t length)
-        {
-          if(ec) return;
-          manager->navigate(PageURIs::Dashboard, context);
-        }
-    );
+      [this](boost::system::error_code ec, std::size_t length) {
+        if (ec) return;
+        manager->navigate(PageURIs::Dashboard, context);
+      });
   }
-  
-  std::string getUri() const override 
-  {
+
+  std::string getUri() const override {
     return PageURIs::Display;
   }
 
-private:
-
-  std::string GetContent() 
-  {
+ private:
+  std::string GetContent() {
     std::string content = "The " + context->user->name + " data:\r\n";
     content += "*. Balance: " + std::to_string(context->user->balance) + "\r\n";
     content += "*. Items: \r\n";
     int counter = 1;
-    for(const auto& item : context->user->items) 
-    {
+    for (const auto& item : context->user->items) {
       content += std::to_string(counter++);
       content += ". " + item + "\r\n";
     }
@@ -49,5 +40,4 @@ private:
 
   std::shared_ptr<PageManager> manager;
   std::shared_ptr<Context> context;
-
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <map>
 #include "Page.h"
 #include "pages/Dashboard.h"
@@ -18,36 +19,27 @@
 #include "Context.h"
 #include "UserInterface.h"
 
-class Session
-  : public std::enable_shared_from_this<Session>, public PageManager
-{
-
-public:
-
-  Session(std::shared_ptr<Context> ctx)
-  : context(ctx)
-  {
+class Session : public std::enable_shared_from_this<Session>, public PageManager {
+ public:
+  explicit Session(std::shared_ptr<Context> ctx)
+  : context(ctx) {
     initPages();
   }
-  
-  void navigate(const std::string& uri, std::shared_ptr<Context> ctx) override
-  {
+
+  void navigate(const std::string& uri, std::shared_ptr<Context> ctx) override {
     auto self(shared_from_this());
     currentPage = pages[uri];
     currentPage->render(self, context);
   }
 
-  void start()
-  {
+  void start() {
     currentPage = pages[PageURIs::Auth];
     auto self(shared_from_this());
     currentPage->render(self, context);
   }
 
-private:
-
-  void initPages() 
-  {
+ private:
+  void initPages() {
     pages[PageURIs::Auth] = std::make_shared<Auth>();
     pages[PageURIs::Dashboard] = std::make_shared<Dashboard>();
     pages[PageURIs::Deposit] = std::make_shared<Deposit>();
@@ -64,5 +56,4 @@ private:
   std::map<std::string, std::shared_ptr<Page>> pages;
   std::shared_ptr<Page> currentPage;
   std::shared_ptr<Context> context;
-
 };

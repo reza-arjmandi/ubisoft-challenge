@@ -6,8 +6,7 @@
 class PageManager;
 struct Context;
 
-namespace PageURIs 
-{
+namespace PageURIs {
   const std::string Auth = "/app/login";
   const std::string Dashboard = "/app/dashboard";
   const std::string Deposit = "/app/dashboard/deposit";
@@ -19,15 +18,11 @@ namespace PageURIs
   const std::string Sell = "/app/dashboard/sell";
   const std::string Buy = "/app/dashboard/buy";
   const std::string Display = "/app/dashboard/display";
-};
+};  // namespace PageURIs
 
-class Page 
-{
-
-public:
-
+class Page {
+ public:
   virtual ~Page() = default;
   virtual void render(std::shared_ptr<PageManager> manager, std::shared_ptr<Context> ctx) = 0;
   virtual std::string getUri() const = 0;
-
 };
