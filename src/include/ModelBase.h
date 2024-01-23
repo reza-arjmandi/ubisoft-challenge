@@ -4,10 +4,12 @@
 #include <memory>
 #include <vector>
 #include <fstream>
+#include <filesystem>
 #include <boost/json.hpp>
 #include "Active.h"
 
 namespace json = boost::json;
+namespace fs = std::filesystem;
 
 void prettyPrint( std::ostream& os, json::value const& jv, std::string* indent = nullptr )
 {
@@ -99,6 +101,11 @@ public:
   {
 
   public:
+    DBCollection(const std::string& dbName)
+    {
+      readFromJson(dbName);
+    }
+
     std::shared_ptr<T> findOrCreate(std::function<bool(const std::shared_ptr<T>&)> matcher, std::function<std::shared_ptr<T>()> factory) 
     {
       auto found = std::find_if(buffer.cbegin(), buffer.cend(), matcher);
@@ -131,6 +138,37 @@ public:
     }
 
   private:
+
+    void readFromJson(const std::string& dbName) 
+    {
+      std::string dbPath = dbName + ".dump.json";
+      if (!fs::exists(dbPath)) 
+      {
+        return;
+      }
+      std::ifstream jsonFile(dbPath);
+      if (!jsonFile.is_open()) 
+      {
+        std::cerr << "Error opening JSON file." << std::endl;
+        return;
+      }
+
+      std::string jsonString((std::istreambuf_iterator<char>(jsonFile)), std::istreambuf_iterator<char>());
+      boost::json::error_code ec;
+
+      boost::json::value jsonValue = boost::json::parse(jsonString, ec);
+      if (ec) {
+        std::cerr << "Error parsing JSON: " << ec.message() << std::endl;
+        return ;
+      }
+
+      for (auto& elem : jsonValue.at(dbName).as_array())
+      {
+        auto result = std::make_shared<T>();
+        result->deSerialize(elem);
+        buffer.push_back(result);
+      }
+    }
 
     void dumpToJson() 
     {
@@ -165,6 +203,8 @@ public:
   };
 
   virtual std::string serialize(boost::json::value& jv) = 0;
+  virtual void deSerialize(boost::json::value& jv) = 0; 
+
   static DBCollection Collection;
 
 };

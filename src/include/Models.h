@@ -21,15 +21,25 @@ struct User: public ModelBase<User>
       itemsArray.emplace_back(item);
     }
     jv = {
-        {"name", name},
-        {"balance", balance},
-        {"items", itemsArray}
+      {"name", name},
+      {"balance", balance},
+      {"items", itemsArray}
     };
     return "users";
   }
+
+ VOID deSerialize(boost::json::value& jv) override 
+  {
+    name = jv.at("name").as_string();
+    balance = jv.at("balance").as_int64();
+    for (auto item : jv.at("items").as_array())
+    {
+      items.push_back(item.as_string().c_str());
+    }
+  }
 };
 
-ModelBase<User>::DBCollection ModelBase<User>::Collection{};
+ModelBase<User>::DBCollection ModelBase<User>::Collection{"users"};
 
 enum class SaleState 
 {
@@ -59,6 +69,47 @@ struct SaleItem: public ModelBase<SaleItem>
     };
     return "saleItems";
   }
+
+  void deSerialize(boost::json::value& jv) override 
+  {
+    item = jv.at("item").as_string();
+    price = jv.at("price").as_int64();
+    switch(jv.at("state").as_int64())
+    {
+      case 0:
+        state = SaleState::avaiableForSale;
+        break;
+      case 1: 
+        state = SaleState::soldOut;
+        break;    
+      case 2: 
+        state = SaleState::expired;
+        break;
+      default:
+        break;
+    }
+    
+    seller = User::Collection.findOrCreate(
+      [&jv](const auto& user) {
+        return user->name == jv.at("seller").as_string();
+      },
+      [&jv]() {
+        auto newUser = std::make_shared<User>();
+        newUser->name = jv.at("seller").as_string();
+        return newUser;
+      }
+    );
+    buyer = User::Collection.findOrCreate(
+      [&jv](const auto& user) {
+        return user->name == jv.at("buyer").as_string();
+      },
+      [&jv]() {
+        auto newUser = std::make_shared<User>();
+        newUser->name = jv.at("buyer").as_string();
+        return newUser;
+      }
+    );
+  }
 };
 
-ModelBase<SaleItem>::DBCollection ModelBase<SaleItem>::Collection{};
+ModelBase<SaleItem>::DBCollection ModelBase<SaleItem>::Collection{"saleItems"};
