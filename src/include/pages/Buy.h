@@ -61,7 +61,7 @@ class Buy: public Page {
     std::string result = "";
     int itemIndex = itemNumber - 1;
     if (context->user->balance < saleItems[itemIndex]->price) {
-      result = "Can't buy, fund is not enough.";
+      result = "Can't buy, fund is not enough.\r\n";
     } else {
       result = buy(saleItems[itemIndex]) ? "Buying is successfull.\r\n" : "Buying is failed.\r\n";
     }

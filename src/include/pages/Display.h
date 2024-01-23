@@ -39,16 +39,25 @@ class Display: public Page {
 
     auto saleItems = SaleItem::Collection.all();
     std::vector<std::shared_ptr<SaleItem>> bought;
+    std::vector<std::shared_ptr<SaleItem>> onSale;
     std::vector<std::shared_ptr<SaleItem>> sold;
     std::vector<std::shared_ptr<SaleItem>> expiredSold;
     for (auto& saleItem : saleItems) {
-      if (saleItem->buyer->name == context->user->name) bought.push_back(saleItem);
+      if (saleItem->buyer && saleItem->buyer->name == context->user->name) bought.push_back(saleItem);
       if (saleItem->seller->name == context->user->name) {
-          if (saleItem->state == SaleState::soldOut) {
-            sold.push_back(saleItem);
-          } else if (saleItem->state == SaleState::expired) {
-            expiredSold.push_back(saleItem);
-          }
+        switch (saleItem->state) {
+        case SaleState::soldOut:
+          sold.push_back(saleItem);
+          break;
+        case SaleState::expired:
+          expiredSold.push_back(saleItem);
+          break;
+        case SaleState::avaiableForSale:
+          onSale.push_back(saleItem);
+          break;
+        default:
+          break;
+        }
       }
     }
 
@@ -78,6 +87,16 @@ class Display: public Page {
       content += "*. Expired sold:\r\n";
       counter = 1;
       for (auto& elem : expiredSold) {
+        content += std::to_string(counter++);
+        content += ". Item: " + elem->item;
+        content += ", Price: " + std::to_string(elem->price) + "\r\n";
+      }
+    }
+
+    if (onSale.size() > 0) {
+      content += "*. On sale:\r\n";
+      counter = 1;
+      for (auto& elem : onSale) {
         content += std::to_string(counter++);
         content += ". Item: " + elem->item;
         content += ", Price: " + std::to_string(elem->price) + "\r\n";
