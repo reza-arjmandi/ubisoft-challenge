@@ -108,9 +108,9 @@ private:
       context->user->balance = newBalance;
       User::Collection.save();
       
-      boost::asio::deadline_timer timer(context->ioContext);
-      timer.expires_from_now(fiveMinutes);
-      timer.async_wait([saleItem](const boost::system::error_code& ec){
+      auto timer = std::make_shared<boost::asio::deadline_timer>(context->ioContext);
+      timer->expires_from_now(fiveMinutes);
+      timer->async_wait([saleItem, timer](const boost::system::error_code& ec){
         if (ec) return;
         if (saleItem->state == SaleState::avaiableForSale) 
         {
