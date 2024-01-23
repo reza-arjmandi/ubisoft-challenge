@@ -156,7 +156,7 @@ class ModelBase {
 
     void dumpToJson() {
       boost::json::value root;
-      std::string key;
+      std::string key = "";
       boost::json::array itemsArray;
 
       for (auto& elem : buffer) {
@@ -164,6 +164,7 @@ class ModelBase {
         key = elem->serialize(value);
         itemsArray.emplace_back(value);
       }
+      if (key.empty()) return;
       boost::json::object jsonObject;
       jsonObject.emplace(key, itemsArray);
       root.emplace_object() = jsonObject;
