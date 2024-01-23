@@ -110,13 +110,14 @@ private:
       
       auto timer = std::make_shared<boost::asio::deadline_timer>(context->ioContext);
       timer->expires_from_now(fiveMinutes);
-      timer->async_wait([saleItem, timer](const boost::system::error_code& ec){
+      timer->async_wait([saleItem, timer, this](const boost::system::error_code& ec){
         if (ec) return;
         if (saleItem->state == SaleState::avaiableForSale) 
         {
           saleItem->state = SaleState::expired;
           SaleItem::Collection.save();
         }
+        context->user->items.push_back(saleItem->item);
       });
       context->ui->doWrite("The item has put up for sale successfully.\r\n",
         [this](boost::system::error_code ec, std::size_t length)
