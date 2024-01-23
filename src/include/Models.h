@@ -126,6 +126,7 @@ struct SaleItem: public ModelBase<SaleItem>
               state = SaleState::expired;
               seller->items.push_back(item);
               User::Collection.save();
+              SaleItem::Collection.save();
             }
           });
         }

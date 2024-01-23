@@ -104,6 +104,13 @@ public:
     DBCollection(const std::string& dbName)
     {
       readFromJson(dbName);
+      auto timer = std::make_shared<boost::asio::deadline_timer>(ioContext);
+      boost::posix_time::seconds deadline{2};
+      timer->expires_from_now(deadline);
+      timer->async_wait([this, timer](const boost::system::error_code& ec){
+        if (ec) return;
+        save();
+      });
     }
 
     std::shared_ptr<T> findOrCreate(std::function<bool(const std::shared_ptr<T>&)> matcher, std::function<std::shared_ptr<T>()> factory) 
